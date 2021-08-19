@@ -38,8 +38,8 @@ async function db_insertData(data, the_collection, the_db) {
 async function db_updateData(data, the_collection, the_db) {
     console.log("updating...")
     try {
-        const result = await mongoClient.db(the_db).collection(the_collection).insertOne(data);
-        console.log(`Inserted new row in DB ${the_db} -> ${the_collection} with id ${result.insertedId}`);
+        const result = await mongoClient.db(the_db).collection(the_collection).updateOne(data);
+        console.log(`Updated new row in DB ${the_db} -> ${the_collection} with id ${result.updatedId}`);
     } catch (e) {
         console.error(e);
     }
@@ -54,12 +54,12 @@ const data_products_ten = {
     "price": "43.89",
     "currency": "euro",
     "photo": "https://images-na.ssl-images-amazon.com/images/I/41yafGMO+rL._SX376_BO1,204,203,200_.jpg",
-    "description": "Even bad code can function. But if code isn’t clean, it can bring a development organization to its knees. Every year, countless hours and significant resources are lost because of poorly written code. But it doesn’t have to be that way.", 
-    "available": 3,
-//    Noted software expert Robert C. Martin, presents a revolutionary paradigm with Clean Code: A Handbook of Agile Software Craftsmanship. Martin, who has helped bring agile principles from a practitioner’s point of view to tens of thousands of programmers, has teamed up with his colleagues from Object Mentor to distill their best agile practice of cleaning code “on the fly” into a book that will instill within you the values of software craftsman, and make you a better programmer―but only if you work at it."
+    "description": "Even bad code can function. But if code isn’t clean, it can bring a development organization to its knees. Every year, countless hours and significant resources are lost because of poorly written code. But it doesn’t have to be that way.\n\n Noted software expert Robert C. Martin, presents a revolutionary paradigm with Clean Code: A Handbook of Agile Software Craftsmanship. Martin, who has helped bring agile principles from a practitioner’s point of view to tens of thousands of programmers, has teamed up with his colleagues from Object Mentor to distill their best agile practice of cleaning code “on the fly” into a book that will instill within you the values of software craftsman, and make you a better programmer―but only if you work at it.", 
+    "available": "3",
+
 };
 
-db_connectAndDo(db_updateData, data_products_ten, db_collection_products, db_enki_products).catch(console.error);
+db_connectAndDo(db_insertData, data_products_ten, db_collection_products, db_enki_products).catch(console.error);
 
 
 const port = process.env.PORT || 3000;
