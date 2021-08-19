@@ -24,6 +24,7 @@ async function db_connectAndDo(todo, data, the_collection, the_db) {
     }
 }
 
+// not yet working_insertedId
 async function db_insertData(data, the_collection, the_db) {
     console.log("inserting...")
 
