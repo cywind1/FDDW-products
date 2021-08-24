@@ -2,8 +2,6 @@ const {MongoClient} = require('mongodb');
 const express = require('express');
 const app = express();
 app.use(express.json());
-const MongodbURI = "mongodb+srv://enki-admin-cart:enki1234@cluster0.5xz0p.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
-const mongoClient = new MongoClient(MongodbURI);
 
 const db_enki_carts = 'enki-carts';
 const db_enki_users = 'enki-users';
@@ -12,55 +10,254 @@ const db_collection_carts = 'carts';
 const db_collection_products = 'products';
 const db_collection_users = 'users';
 
-async function db_connectAndDo(todo, data, the_collection, the_db) {
-    try {
-        await mongoClient.close();
-        await mongoClient.connect();
-        await todo(data, the_collection, the_db);
-    } catch (e) {
-        console.error(e);
-    }finally{
-       
-    }
-}
-
-// not yet working_insertedId
-async function db_insertData(data, the_collection, the_db) {
-    console.log("inserting...")
-
-    try {
-        const result = await mongoClient.db(the_db).collection(the_collection).insertOne(data);
-        console.log(`Inserted new row in DB ${the_db} -> ${the_collection} with id ${result.insertedId}`);
-    } catch (e) {
-        console.error(e);
-    }
-}
-
-async function db_updateData(data, the_collection, the_db) {
-    console.log("updating...")
-    try {
-        const result = await mongoClient.db(the_db).collection(the_collection).updateOne(data);
-        console.log(`Updated new row in DB ${the_db} -> ${the_collection} with id ${result.updatedId}`);
-    } catch (e) {
-        console.error(e);
-    }
-}
-
-const data_products_ten = {
-    "title": "Clean Code: A Handbook of Agile Software Craftsmanship",
-    "author": "Robert C. Martin",
-    "genre": "novel",
-    "published": "01/08/2008",
-    "pages": "464",
-    "price": "43.89",
+const data_products_1 = {
+    "title": "Harry Potter and the Philosopher's Stone",
+    "author": "J. K. Rowling",
+    "genre": "Children's Books",
+    "published": "26/06/1997",
+    "pages": "320",
+    "price": "10.78",
     "currency": "euro",
-    "photo": "https://images-na.ssl-images-amazon.com/images/I/41yafGMO+rL._SX376_BO1,204,203,200_.jpg",
-    "description": "Even bad code can function. But if code isn’t clean, it can bring a development organization to its knees. Every year, countless hours and significant resources are lost because of poorly written code. But it doesn’t have to be that way.\n\n Noted software expert Robert C. Martin, presents a revolutionary paradigm with Clean Code: A Handbook of Agile Software Craftsmanship. Martin, who has helped bring agile principles from a practitioner’s point of view to tens of thousands of programmers, has teamed up with his colleagues from Object Mentor to distill their best agile practice of cleaning code “on the fly” into a book that will instill within you the values of software craftsman, and make you a better programmer―but only if you work at it.", 
-    "available": "3",
-
+    "photo": "https://images-na.ssl-images-amazon.com/images/I/51DF6ZR8G7L._SY291_BO1,204,203,200_QL40_FMwebp_.jpg",
+    "description": "Harry Potter has never even heard of Hogwarts when the letters start dropping on the doormat at number four, Privet Drive. Addressed in green ink on yellowish parchment with a purple seal, they are swiftly confiscated by his grisly aunt and uncle. Then, on Harry's eleventh birthday, a great beetle-eyed giant of a man called Rubeus Hagrid bursts in with some astonishing news: Harry Potter is a wizard, and he has a place at Hogwarts School of Witchcraft and Wizardry. An incredible adventure is about to begin! These editions of the classic and internationally bestselling, multi-award-winning series feature instantly pick-up-able jackets by award-winning illustrator Jonny Duddle, and are the perfect starting point for anyone who's ready to lose themselves in the biggest children's books of all time.",
+    "available": "4"
 };
 
-db_connectAndDo(db_insertData, data_products_ten, db_collection_products, db_enki_products).catch(console.error);
+const data_products_2 = {
+    "title": "Harry Potter and the Chamber of Secrets",
+    "author": "J. K. Rowling",
+    "genre": "Children's Books",
+    "published": "01/09/2014",
+    "pages": "259",
+    "price": "10.50",
+    "currency": "euro",
+    "photo": "https://images-na.ssl-images-amazon.com/images/I/51OihdkhSBL._SY291_BO1,204,203,200_QL40_FMwebp_.jpg",
+    "description": "Let the magic of J.K. Rowling's classic series take you back to Hogwarts School of Witchcraft and Wizardry. Issued to mark the 20th anniversary of first publication of Harry Potter and the Chamber of Secrets, these irresistible House Editions celebrate the noble character of the four Hogwarts houses. Featuring gorgeous house-themed cover art and interior line illustrations by Kate Greenaway Medal winner Levi Pinfold, each book will also have vibrant sprayed edges in the house livery. Entertaining bonus features exclusive to each house accompany the novel. All seven books in the series will be issued in these highly collectable House Editions. A must-have for anyone who has ever imagined sitting under the Sorting Hat in the Great Hall at Hogwarts waiting to hear the words, 'Better be GRYFFINDOR!'",
+    "available": "5"
+};
+
+const data_products_3 = {
+    "title": "Our Class is a Family Paperback",
+    "author": "Shannon Olsen",
+    "genre": "Children's Books",
+    "published": "05/05/2020",
+    "pages": "27",
+    "price": "10.42",
+    "currency": "euro",
+    "photo": "https://images-na.ssl-images-amazon.com/images/I/510g8NLbpNL._SX384_BO1,204,203,200_.jpg",
+    "description": "Teachers do so much more than just teach academics. They build a sense of community within their classrooms, creating a home away from home where they make their students feel safe, included, and loved.\n\nWith its heartfelt message and colorfully whimsical illustrations, “Our Class is a Family” is a book that will help build and strengthen that class community. Kids learn that their classroom is a place where it’s safe to be themselves, it’s okay to make mistakes, and it’s important to be a friend to others. When hearing this story being read aloud by their teacher, students are sure to feel like they are part of a special family.",
+    "available": "7"
+};
+
+const data_products_4 = {
+    "title": "Beautiful Boards: 50 Amazing Snack Boards for Any Occasion",
+    "author": "Maegan Brown",
+    "genre": "Cookbooks",
+    "published": "24/09/2019",
+    "pages": "168",
+    "price": "12.14",
+    "currency": "euro",
+    "photo": "https://images-na.ssl-images-amazon.com/images/I/61PtcWk-BIL._SX402_BO1,204,203,200_.jpg",
+    "description": "Make mealtimes, special occasions, and holidays extra memorable with these 50 delicious, inspiring, family-friendly, and easy-to-recreate snack boards.\n\nVisually exciting and deliciously enticing, these snack boards by Maegan Brown (aka The BakerMama) move beyond (and include) classic cheese and charcuterie and are comprised of easy-to-find fresh and prepared foods, arranged in beautiful, artful, and whimsical ways (think orange- and black-colored snacks arranged into a smiling jack-o’-lantern shape for celebrating Halloween and a fruit-and-veggie rainbow with cracker clouds to brighten any day).",
+    "available": "6"
+};
+
+const data_products_5 = {
+    "title": "Ball Complete Book of Home Preserving",
+    "author": "Judi Kingry",
+    "genre": "Cookbooks",
+    "published": "01/05/2020",
+    "pages": "448",
+    "price": "21.90",
+    "currency": "euro",
+    "photo": "https://images-na.ssl-images-amazon.com/images/I/51yaW1+4OzL._SY344_BO1,204,203,200_.jpg",
+    "description": "From the experts, the updated bible in home preserving.\n\nThe hugely bestselling Ball Complete Book of Home Preserving has been broadly updated to reflect changes over the last 15 years with new recipes and larger sections on low sugar and fermentation. Ball Home Canning Products are the gold standard in home preserving supplies, the trademark jars on display in stores every summer from coast to coast. This companion to their products is this bible of home preserving from the experts on the practice which has sold more than a million copies. The book includes 400 innovative recipes for salsas, savory sauces, pickles, chutneys, relishes and of course, jams, jellies, and fruit spreads. The book includes comprehensive directions on safe canning and preserving methods plus lists of required equipment and utensils. Specific instructions for first-timers and handy tips for the experienced make this book a valuable addition to any kitchen library.",
+    "available": "5"
+};
+
+const data_products_6 = {
+    "title": "The Intelligent Investor: The Definitive Book on Value Investing",
+    "author": '["Benjamin Graham", "Jason Zweig"]',
+    "genre": "Business & Money",
+    "published": "21/02/2006",
+    "pages": "640",
+    "price": "12.42",
+    "currency": "euro",
+    "photo": "https://images-na.ssl-images-amazon.com/images/I/41vQ4DGEmoL._SX325_BO1,204,203,200_.jpg",
+    "description": "This classic text is annotated to update Graham's timeless wisdom for today's market conditions...\n\nThe greatest investment advisor of the twentieth century, Benjamin Graham, taught and inspired people worldwide. Graham's philosophy of \"value investing\" -- which shields investors from substantial error and teaches them to develop long-term strategies -- has made The Intelligent Investor the stock market bible ever since its original publication in 1949.",
+    "available": "3"
+};
+
+const data_products_7 = {
+    "title": "Women in Science: 50 Fearless Pioneers Who Changed the World",
+    "author": "Rachel Ignotofsky",
+    "genre": "Teen & Young Adult",
+    "published": "26/07/2016",
+    "pages": "128",
+    "price": "17.38",
+    "currency": "euro",
+    "photo": "https://images-na.ssl-images-amazon.com/images/I/61rQ28yz98L._SX417_BO1,204,203,200_.jpg",
+    "description": "It’s a scientific fact: Women rock!\n\nA charmingly illustrated and educational book, New York Times best seller Women in Science highlights the contributions of fifty notable women to the fields of science, technology, engineering, and mathematics (STEM) from the ancient to the modern world. Full of striking, singular art, this fascinating collection also contains infographics about relevant topics such as lab equipment, rates of women currently working in STEM fields, and an illustrated scientific glossary. The trailblazing women profiled include well-known figures like primatologist Jane Goodall, as well as lesser-known pioneers such as Katherine Johnson, the African-American physicist and mathematician who calculated the trajectory of the 1969 Apollo 11 mission to the moon.",
+    "available": "7"
+};
+
+const data_products_8 = {
+    "title": "The Wondrous Workings of Planet Earth: Understanding Our World and Its Ecosystems",
+    "author": "Rachel Ignotofsky",
+    "genre": "Teen & Young Adult",
+    "published": "18/09/2018",
+    "pages": "128",
+    "price": "11.81",
+    "currency": "euro",
+    "photo": "https://images-na.ssl-images-amazon.com/images/I/61BJxAdlDGL._SX425_BO1,204,203,200_.jpg",
+    "description": "An illustrated tour of the planet exploring ecosystems large and small, from reefs, deserts, and rainforests to a single drop of water—from the New York Times bestselling author of Women in Science.\n\nMaking earth science accessible and entertaining through art, maps, and infographics, The Wondrous Workings of Planet Earth explains how our planet works—and how we can protect it—from its diverse ecosystems and their inhabitants, to the levels of ecology, the importance of biodiversity, the cycles of nature, and more. Science- and nature-loving readers of all ages will delight in this utterly charming guide to our amazing home.",
+    "available": "7"
+};
+
+const data_products_9 = {
+    "title": "A Tale of Two Cities",
+    "author": "Charles Dickens",
+    "genre": "Literature & Fiction",
+    "published": "23/02/1993",
+    "pages": "472",
+    "price": "15.48",
+    "currency": "euro",
+    "photo": "https://images-na.ssl-images-amazon.com/images/I/51Qjbkxa9eL._SY291_BO1,204,203,200_QL40_FMwebp_.jpg",
+    "description": "Lucie Manette had been separated from her father for eighteen years while he languished in Paris’s most feared prison, the Bastille. Finally reunited, the Manettes’s fortunes become inextricably intertwined with those of two men, the heroic aristocrat Darnay, and the dissolute lawyer, Carton. Their story, which encompasses violence, revenge, love and redemption, is grippingly played out against the backdrop of the terrifying brutality of the French Revolution.",
+    "available": "4"
+};
+
+const data_products_10 = {
+    "title": "Clean Code: A Handbook of Agile Software Craftsmanship",
+    "author": "Robert Martin",
+    "genre": "Computing & Internet",
+    "published": "01/08/2008",
+    "pages": "464",
+    "price": "28.50",
+    "currency": "euro",
+    "photo": "https://images-na.ssl-images-amazon.com/images/I/41yafGMO+rL._SX376_BO1,204,203,200_.jpg",
+    "description": "Even bad code can function. But if code isn’t clean, it can bring a development organization to its knees. Every year, countless hours and significant resources are lost because of poorly written code. But it doesn’t have to be that way. Noted software expert Robert C. Martin presents a revolutionary paradigm with Clean Code: A Handbook of Agile Software Craftsmanship . Martin has teamed up with his colleagues from Object Mentor to distill their best agile practice of cleaning code “on the fly” into a book that will instill within you the values of a software craftsman and make you a better programmer—but only if you work at it. What kind of work will you be doing? You’ll be reading code—lots of code. And you will be challenged to think about what’s right about that code, and what’s wrong with it. More importantly, you will be challenged to reassess your professional values and your commitment to your craft. Clean Code is divided into three parts. The first describes the principles, patterns, and practices of writing clean code. The second part consists of several case studies of increasing complexity. Each case study is an exercise in cleaning up code—of transforming a code base that has some problems into one that is sound and efficient. The third part is the payoff: a single chapter containing a list of heuristics and “smells” gathered while creating the case studies. The result is a knowledge base that describes the way we think when we write, read, and clean code. Readers will come away from this book understanding How to tell the difference between good and bad code How to write good code and how to transform bad code into good code How to create good names, good functions, good objects, and good classes How to format code for maximum readability How to implement complete error handling without obscuring code logic How to unit test and practice test-driven development This book is a must for any developer, software engineer, project manager, team lead, or systems analyst with an interest in producing better code.",
+    "available": "8"
+};
+
+const data_products_test = {
+    "title": "My Own Words",
+    "author": "Ruth Ginsburg",
+    "genre": "history",
+    "published": "7/8/2018",
+    "pages": "400",
+    "price": "13.35",
+    "currency": "euro",
+    "photo": "https://images-na.ssl-images-amazon.com/images/I/41ZhmNOH8ZL._SX326_BO1,204,203,200_.jpg",
+    "description": "The New York Times bestselling book from Supreme Court Justice Ruth Bader Ginsburg—“a comprehensive look inside her brilliantly analytical, entertainingly wry mind, revealing the fascinating life of one of our generation's most influential voices in both law and public opinion” (Harper’s Bazaar).", 
+    "available": "3",
+};
+
+const uri = "mongodb+srv://enki-admin-cart:enki1234@cluster0.5xz0p.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+const client = new MongoClient(uri);
+
+async function db_connectAndDo(todo, test) { {
+    try {
+        // Connect to the MongoDB cluster
+        await client.connect();
+
+        // Make the appropriate DB calls
+
+        if(todo == db_insertData) {
+            console.log("Inserting...");
+            return await todo(test)
+        }else if(todo == db_updateData) {
+            console.log("Updating...");
+            return await todo(test)
+        }else if(todo == db_deleteData) {
+            console.log("Deleting...");
+            return await todo(test) 
+        }else {
+            console.log("Function not found");
+            return -1;
+        }
+
+    } catch (e) {
+        console.error(e);
+    } finally {
+        // Close the connection to the MongoDB cluster
+        await client.close();
+    }
+ }
+}
+
+
+/**
+ * @param {MongoClient} client A MongoClient that is connected to a cluster with the database
+ * @param {string} nameOfListing The name of the listing you want to update
+ * @param {object} updatedBooklist An object containing all of the properties to be updated for the given listing
+ */
+
+async function db_insertData(in_test){
+    const result = await client.db(db_enki_products).collection(db_collection_products).insertOne(in_test);
+    console.log(`New book(s) created with the following id(s):${result.insertedId}`);
+}
+
+async function db_updateData(up_test){
+    // UPDATE
+    // Print the book
+    await findBookByTitle(client, up_test.title);
+    // Update the book to have 7 copies
+    await updateDBByTitle(client, up_test.title, { available: "7" });
+    // Print the updated Book listing
+    await findBookByTitle(client, up_test.title);
+
+}
+
+//updateOne = first one, old one will remain
+async function updateDBByTitle(client, nameOfListing, updatedBooklist) {
+    const result = await client.db(db_enki_products).collection(db_collection_products).updateMany( { updatedBooklist });
+    console.log(`${result.matchedCount} document(s) matched the query criteria.`);
+    console.log(`${result.modifiedCount} document(s) was/were updated.`);
+}
+
+async function db_deleteData(dt_test){
+    // DELETE
+    // Print the book
+    await findBookByTitle(client, dt_test.title);
+    // Delete the book items
+    await deleteDBByTitle(client, dt_test.title, { available: "7" });
+    // Print the updated book listing
+    await findBookByTitle(client, dt_test.title);
+}
+
+async function deleteDBByTitle(client, nameOfListing, updatedBooklist) {
+    const result = await client.db(db_enki_products).collection(db_collection_products).deleteMany({ available: { $exists: true } }, { $set: { updatedBooklist }});
+    console.log(`${result.matchedCount} document(s) matched the query criteria.`);
+    console.log(`${result.modifiedCount} document(s) was/were deleted.`);
+}
+
+/**
+ * @param {MongoClient} client A MongoClient that is connected to a cluster with the sample_airbnb database
+ * @param {String} nameOfListing The name of the listing you want to find
+ */
+async function findBookByTitle(client, nameOfListing) {
+    const result = await client.db(db_enki_products).collection(db_collection_products).findOne({ title: nameOfListing });
+    if (result) {
+        console.log(`Found book(s) in the db with the name '${nameOfListing}':`);
+    } else {
+        console.log(`No books found with the name '${nameOfListing}'`);
+    }
+}
+
+db_connectAndDo( db_insertData, data_products_1).catch(console.error);
+db_connectAndDo( db_insertData, data_products_2).catch(console.error);
+db_connectAndDo( db_insertData, data_products_3).catch(console.error);
+db_connectAndDo( db_insertData, data_products_4).catch(console.error);
+db_connectAndDo( db_insertData, data_products_5).catch(console.error);
+db_connectAndDo( db_insertData, data_products_6).catch(console.error);
+db_connectAndDo( db_insertData, data_products_7).catch(console.error);
+db_connectAndDo( db_insertData, data_products_8).catch(console.error);
+db_connectAndDo( db_insertData, data_products_9).catch(console.error);
+db_connectAndDo( db_insertData, data_products_10).catch(console.error);
+
+// db_connectAndDo( db_deleteData, data_products_test).catch(console.error);
+// db_connectAndDo( db_updateData, data_products_test).catch(console.error);
 
 
 const port = process.env.PORT || 3000;
