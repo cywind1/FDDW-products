@@ -94,15 +94,14 @@ async function db_deleteData(dt_test){
     // Print the book
     await findBookByTitle(client, dt_test.title);
     // Delete the book items
-    await deleteDBByTitle(client, dt_test.title, { available: "7" });
+    await deleteDBByTitle(client, dt_test.title);
     // Print the updated book listing
     await findBookByTitle(client, dt_test.title);
 }
 
-async function deleteDBByTitle(client, nameOfListing, updatedBooklist) {
-    const result = await client.db(db_enki_products).collection(db_collection_products).deleteMany({ available: { $exists: true } }, { $set: { updatedBooklist }});
-    console.log(`${result.matchedCount} document(s) matched the query criteria.`);
-    console.log(`${result.modifiedCount} document(s) was/were deleted.`);
+async function deleteDBByTitle(client, nameOfListing) {
+    const result = await client.db(db_enki_products).collection(db_collection_products).deleteOne({ title: nameOfListing });
+    console.log(`${result.deletedCount} document(s) was/were deleted.`);
 }
 
 /**
@@ -132,9 +131,10 @@ async function findBookByTitle(client, nameOfListing) {
         console.log(`No books found with the title ${nameOfListing}`) ;
     }
 }
-// db_connectAndDo( db_insertData, data_products_1).catch(console.error);
-// db_connectAndDo( db_deleteData, data_products_test).catch(console.error);
- db_connectAndDo( db_updateData, data_products_test).catch(console.error);
+
+db_connectAndDo( db_insertData, data_products_test).catch(console.error);
+db_connectAndDo( db_deleteData, data_products_test).catch(console.error);
+//  db_connectAndDo( db_updateData, data_products_test).catch(console.error);
 
 
 const port = process.env.PORT || 3000;
