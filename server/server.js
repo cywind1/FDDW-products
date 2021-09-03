@@ -140,14 +140,38 @@ db_connectAndDo( db_deleteData, data_products_test).catch(console.error);
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Listening on port ${port}...`));
 
+// function db_findAll
+async function db_findAll(the_collection, the_db) {
+    const cursor = await mongoClient.db(the_db).collection(the_collection).find();
+    const results = await cursor.toArray();
+    results.sort((a, b) => a.title.localeCompare(b.title));
+    if (results.length > 0) {
+        console.log('Found a listing in the collection :');
+        return results;
+    } else {
+        console.log('No listings found' );
+        return 0;
+    }
+}
+
+//SERVER - Products
+app.get('/products', (req, res) => {
+    db_connectAndDo(db_findAll, data_products_test)
+        .then((results) => {
+            let data = { "book_results": results }
+            res.send(data);
+            console.log(data);
+        });
+});
+    // });
+
+
+
 // app.post()
 // app.put()
 // app.delete()
 
-    // app.get('/api/courses',(req, res) => {
-    //     res.send([1,2,3]);
-    // });
-
+    // 
     // app.get('/api/courses/:id',(req, res) => {
     //     res.send(req.query);
     // });
