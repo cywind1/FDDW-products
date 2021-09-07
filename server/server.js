@@ -36,6 +36,9 @@ async function db_connectAndDo(todo, test) { {
         if(todo == db_insertData) {
             console.log("Inserting...");
             return await todo(test)
+        }else if(todo == db_findAll) {
+            console.log("Finding all...");
+            return await todo(test) 
         }else if(todo == db_updateData) {
             console.log("Updating...");
             return await todo(test)
@@ -56,30 +59,53 @@ async function db_connectAndDo(todo, test) { {
  }
 }
 
-
 /**
  * @param {MongoClient} client A MongoClient that is connected to a cluster with the database
- * @param {string} nameOfListing The name of the listing you want to update
+ * @param {string} nameOfListing The name of the listing you want to update / find
  * @param {object} updatedBooklist An object containing all of the properties to be updated for the given listing
  */
 
+// create
 async function db_insertData(in_test){
     const result = await client.db(db_enki_products).collection(db_collection_products).insertOne(in_test);
     console.log(`New book(s) created with the following id(s):${result.insertedId}`);
 }
 
+// read
+async function findBookByTitle(client, nameOfListing) {
+    const cursor = await client.db(db_enki_products).collection(db_collection_products).find({ title: nameOfListing });
+    if (cursor) {
+        console.log(`Found book(s) in the db with the title '${nameOfListing}':`);
+    } else {
+        console.log(`No books found with the title '${nameOfListing}'`);
+    }
+    const results = await cursor.toArray();
+
+    if (results.length > 0) {
+        console.log(`Found book(s) with the title ${nameOfListing}`) ;
+        results.forEach((result, i) => {   
+            console.log();
+            console.log(`${i + 1}. Title: ${result.title}`);
+            console.log(`   _id: ${result._id}`);
+            console.log(`   Author: ${result.author}`);
+            console.log(`   Available: ${result.available}`);
+        });
+    } else {
+        console.log(`No books found with the title ${nameOfListing}`) ;
+    }
+}
+
+// update
 async function db_updateData(up_test){
-    // UPDATE
     // Print the book
     await findBookByTitle(client, up_test.title);
     // Update the book to have 7 copies
     await updateDBByTitle(client, up_test.title, { available: "7" });
     // Print the updated Book listing
     await findBookByTitle(client, up_test.title);
-
 }
 
-//updateOne = first one, old one will remain
+// updateOne = first one, old one will remain
 async function updateDBByTitle(client, nameOfListing, updatedBooklist) {
     console.log( 'updateDBByTitle working');
     console.log({ title: nameOfListing });
@@ -89,8 +115,8 @@ async function updateDBByTitle(client, nameOfListing, updatedBooklist) {
     console.log(`${result.modifiedCount} document(s) was/were updated.`);
 }
 
+// delete
 async function db_deleteData(dt_test){
-    // DELETE
     // Print the book
     await findBookByTitle(client, dt_test.title);
     // Delete the book items
@@ -104,49 +130,22 @@ async function deleteDBByTitle(client, nameOfListing) {
     console.log(`${result.deletedCount} document(s) was/were deleted.`);
 }
 
-/**
- * @param {MongoClient} client A MongoClient that is connected to a cluster with the sample_airbnb database
- * @param {String} nameOfListing The name of the listing you want to find
- */
-async function findBookByTitle(client, nameOfListing) {
-    const cursor = await client.db(db_enki_products).collection(db_collection_products).find({ title: nameOfListing });
-    if (cursor) {
-        console.log(`Found book(s) in the db with the title '${nameOfListing}':`);
-    } else {
-        console.log(`No books found with the title '${nameOfListing}'`);
-    }
-    const results = await cursor.toArray();
-
-    if (results.length > 0) {
-        console.log(`Found book(s) with the title ${nameOfListing}`) ;
-        results.forEach((result, i) => {
-   
-            console.log();
-            console.log(`${i + 1}. Title: ${result.title}`);
-            console.log(`   _id: ${result._id}`);
-            console.log(`   Author: ${result.author}`);
-            console.log(`   Available: ${result.available}`);
-        });
-    } else {
-        console.log(`No books found with the title ${nameOfListing}`) ;
-    }
-}
-
-db_connectAndDo( db_insertData, data_products_test).catch(console.error);
-db_connectAndDo( db_deleteData, data_products_test).catch(console.error);
+// db_connectAndDo( db_insertData, data_products_test).catch(console.error);
+// db_connectAndDo( db_deleteData, data_products_test).catch(console.error);
 //  db_connectAndDo( db_updateData, data_products_test).catch(console.error);
-
+db_connectAndDo(db_findAll).catch(console.error);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Listening on port ${port}...`));
 
 // function db_findAll
-async function db_findAll(the_collection, the_db) {
-    const cursor = await mongoClient.db(the_db).collection(the_collection).find();
+async function db_findAll() {
+    const cursor = await client.db(db_enki_products).collection(db_collection_products).find();
     const results = await cursor.toArray();
     results.sort((a, b) => a.title.localeCompare(b.title));
     if (results.length > 0) {
         console.log('Found a listing in the collection :');
+        console.log(results.length);
         return results;
     } else {
         console.log('No listings found' );
@@ -155,15 +154,33 @@ async function db_findAll(the_collection, the_db) {
 }
 
 //SERVER - Products
-app.get('/products', (req, res) => {
-    db_connectAndDo(db_findAll, data_products_test)
+app.get('/books', (req, res) => {
+    //send all books from the db
+    db_connectAndDo(db_findAll, false, false)
         .then((results) => {
             let data = { "book_results": results }
             res.send(data);
-            console.log(data);
         });
 });
-    // });
+
+app.get('/books/:id', (req, res) => {
+    //send only a specific book
+    const book_id = req.params.id;
+    console.log(book_id);
+    db_connectAndDo(db_findElementById, false, book_id)
+        .then((result) => {
+            res.send(result);
+        });
+});
+
+app.put('/books', (req, res) => {
+    //update the "available" of the products that are bought
+    const products = req.body.sold;
+    products.forEach((product) => {
+        //update every product
+        db_connectAndDo(db_findAndUpdateProduct, product[1], { _id: ObjectId(product[0]) });
+    });
+});
 
 
 
