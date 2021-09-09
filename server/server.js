@@ -22,7 +22,10 @@ app.use((req, res, next) => {
     if (corsWhitelist.indexOf(req.headers.origin) !== -1) {
         res.header('Access-Control-Allow-Origin', req.headers.origin);
     }
-next();
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Credentials');
+    // Cookie -> res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DEL, OPTION, HEAD');
+    next();
 });
 
 mongoose.connect(MongodbURI, { useNewUrlParser: true, useUnifiedTopology: true })
