@@ -10,6 +10,21 @@ const app = express();
 const port = process.env.PORT || 3000;
 const MongodbURI = "mongodb+srv://enki-admin-cart:enki1234@cluster0.5xz0p.mongodb.net/enki-products?retryWrites=true&w=majority"
 
+app.use((req, res, next) => {
+    const corsWhitelist = [
+        'https://enki-cart.herokuapp.com/',
+        'http://127.0.0.1:5500/',
+        'http://127.0.0.1:5501/',
+        'http://127.0.0.1:3000/',
+        'http://127.0.0.1:3001/',
+        'https://enki-store.herokuapp.com/'
+    ];
+    if (corsWhitelist.indexOf(req.headers.origin) !== -1) {
+        res.header('Access-Control-Allow-Origin', req.headers.origin);
+    }
+next();
+});
+
 mongoose.connect(MongodbURI, { useNewUrlParser: true, useUnifiedTopology: true })
 // listen only after connected with db
     .then((result) => app.listen(port, () => 
