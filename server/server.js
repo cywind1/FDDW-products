@@ -19,8 +19,10 @@ mongoose.connect(MongodbURI, { useNewUrlParser: true, useUnifiedTopology: true }
 //Product Service
 // GET all books
 app.get('/books', (req, res) => {
-    Product.find().then((result) => {
-        res.send(result);
+    Product.find().then((results) => {
+        let data = { "book_results": results }
+        res.send(data);
+
     }).catch((err) => {
         console.error(err);
     });
@@ -37,8 +39,7 @@ app.get('/books/:id', (req, res) => {
 
 // GET books with genre
 app.get('/books/genre/:genre', (req, res) => {
-    const the_genre = req.params.genre;
-    //?3
+    const the_genre = req.params.genre;    
     console.log(the_genre);
     Product.find( { genre: the_genre })
     .then(product => res.json(product))
@@ -47,7 +48,7 @@ app.get('/books/genre/:genre', (req, res) => {
 
 //UPDATE the "available" of the products that are bought
 app.put('/books', (req, res) => {
-    const products =[["6125462566521ae01a699a83","2"]];
+    const products = req.body.sold;
     products.forEach((product) => {
     // product[0] = id , product[1] = sold quantity     
         Product.findById(product[0]).then((the_product)=>{
