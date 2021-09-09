@@ -39,6 +39,10 @@ mongoose.connect(MongodbURI, { useNewUrlParser: true, useUnifiedTopology: true }
     .catch((err) => console.log(err));
 
 //Product Service
+app.get('/', (req, res) => {
+        res.status(200).send("Enki Product Page");
+    });
+
 // GET all books
 app.get('/books', (req, res) => {
     Product.find().then((results) => {
