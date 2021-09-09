@@ -19,6 +19,7 @@ app.use((req, res, next) => {
         'http://127.0.0.1:5501/',
         'http://127.0.0.1:3000/',
         'http://127.0.0.1:3001/',
+        'https://enki-product.herokuapp.com/',
         'https://enki-store.herokuapp.com/'
         
     ];
