@@ -2,6 +2,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const Product = require('./models/product_model.js');
+const cors = require('cors');
 
 // creating express server
 const app = express();
@@ -13,25 +14,28 @@ const MongodbURI = "mongodb+srv://enki-admin-cart:enki1234@cluster0.5xz0p.mongod
 app.set('trust proxy', 1) ;// trust first proxy
 
 app.use((req, res, next) => {
-    const corsWhitelist = [
-        'https://enki-cart.herokuapp.com/',
-        'http://127.0.0.1:5500/',
-        'http://127.0.0.1:5501/',
-        'http://127.0.0.1:3000/',
-        'http://127.0.0.1:3001/',
-        'https://enki-product.herokuapp.com/',
-        'https://enki-store.herokuapp.com/',
-        'https://enki-bookstore.herokuapp.com/'
-    
-    ];
-    if (corsWhitelist.indexOf(req.headers.origin) !== -1) {
-        res.header('Access-Control-Allow-Origin', req.headers.origin);
-    }
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Credentials');
     // Cookie -> res.header('Access-Control-Allow-Credentials', 'true');
     res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DEL, OPTION, HEAD');
     next();
 });
+
+const corsWhitelist = [
+    'https://enki-bookstore.herokuapp.com/',
+    'https://enki-cart.herokuapp.com/'
+];
+var corsOptions = {
+    origin: function (origin, callback) {
+        if (corsWhitelist.indexOf(origin) !== -1) {
+            callback(null, true)
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204,
+}
+
+app.use(cors(corsOptions));
 
 mongoose.connect(MongodbURI, { useNewUrlParser: true, useUnifiedTopology: true })
 // listen only after connected with db
