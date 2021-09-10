@@ -23,8 +23,9 @@ const corsWhitelist = [
     'https://enki-bookstore.herokuapp.com/',
     'https://enki-cart.herokuapp.com/'
 ];
+
 var corsOptions = {
-    origin: ['https://enki-bookstore.herokuapp.com/'],
+    origin: 'https://enki-bookstore.herokuapp.com',
     // origin: function (origin, callback) {
     //     if (corsWhitelist.indexOf(origin) !== -1) {
     //         callback(null, true)
