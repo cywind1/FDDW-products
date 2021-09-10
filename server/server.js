@@ -11,8 +11,6 @@ const app = express();
 const port = process.env.PORT || 3000;
 const MongodbURI = "mongodb+srv://enki-admin-cart:enki1234@cluster0.5xz0p.mongodb.net/enki-products?retryWrites=true&w=majority"
 
-app.set('trust proxy', 1) ;// trust first proxy
-
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Credentials');
     // Cookie -> res.header('Access-Control-Allow-Credentials', 'true');
@@ -21,17 +19,19 @@ app.use((req, res, next) => {
 });
 
 const corsWhitelist = [
+    'http://127.0.0.1:3000/',
     'https://enki-bookstore.herokuapp.com/',
     'https://enki-cart.herokuapp.com/'
 ];
 var corsOptions = {
-    origin: function (origin, callback) {
-        if (corsWhitelist.indexOf(origin) !== -1) {
-            callback(null, true)
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
+    origin: ['https://enki-bookstore.herokuapp.com/'],
+    // origin: function (origin, callback) {
+    //     if (corsWhitelist.indexOf(origin) !== -1) {
+    //         callback(null, true)
+    //     } else {
+    //         callback(new Error('Not allowed by CORS'));
+    //     }
+    // },
     optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204,
 }
 
