@@ -11,6 +11,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 const MongodbURI = "mongodb+srv://enki-admin-cart:enki1234@cluster0.5xz0p.mongodb.net/enki-products?retryWrites=true&w=majority"
 
+app.use(express.json());
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Credentials');
     // Cookie -> res.header('Access-Control-Allow-Credentials', 'true');
@@ -86,8 +87,9 @@ app.put('/books', (req, res) => {
         Product.findById(product[0]).then((the_product)=>{
             const new_value = parseInt(the_product.available) - parseInt(product[1]);
             Product.findOneAndUpdate({_id : product[0]}, { available: new_value },{ returnOriginal: false}).then((update)=>{
-                // console.log(update);
-                res.status(200).send();
+                if(products.indexOf(product) == products.length-1){
+                      res.status(200).send("Update complete");
+                }
             }).catch(err => res.status(400).json("Error: " + err));
         });
     });
