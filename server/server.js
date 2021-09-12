@@ -71,12 +71,14 @@ app.get('/books/:id', (req, res) => {
 });
 
 // GET books with genre
-app.get('/books/genre/:genre', (req, res) => {
+app.get('/books/genres/:genre', (req, res) => {
     const the_genre = req.params.genre;    
     console.log(the_genre);
     Product.find( { genre: the_genre })
-    .then(product => res.json(product))
-    .catch(err => res.status(400).json("Error: " + err))
+    .then(results => {
+        let data = { "book_results": results };
+        res.send(data);
+    }).catch(err => res.status(400).json("Error: " + err))
 });
 
 //UPDATE the "available" of the products that are bought
