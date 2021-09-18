@@ -111,3 +111,14 @@ app.put('/books', (req, res) => {
     });
 });
 
+//---------------Logs------------
+app.get('/logs', (req, res) => {
+    Log.find()
+    .then((result) => {
+        res.send(result);
+    }).catch(err => {
+        res.status(400).json("Error: " + err);
+        logger.error(err);
+    })
+})
+
