@@ -23,6 +23,8 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "mongodb": "^4.1.0",
-    "mongoose": "^6.0.5"
+    "mongoose": "^6.0.5",
+    "winston": "^3.3.3",
+    "winston-mongodb": "^5.0.7"
   }
 }

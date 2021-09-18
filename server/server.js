@@ -3,6 +3,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const Product = require('./models/product_model.js');
 const cors = require('cors');
+const Log = require('./models/log_model.js');
+const logger = require('./logger');
 
 // creating express server
 const app = express();
@@ -39,8 +41,8 @@ app.use(cors(corsOptions));
 mongoose.connect(MongodbURI, { useNewUrlParser: true, useUnifiedTopology: true })
 // listen only after connected with db
     .then((result) => app.listen(port, () => 
-    console.log(`Listening on port ${port}...`)))
-    .catch((err) => console.log(err));
+    logger.info(`Listening on port ${port}...`)))
+    .catch((err) => logger.error(err));
 
 // GET Product Service
 app.get('/', (req, res) => {
@@ -52,9 +54,9 @@ app.get('/books', (req, res) => {
     Product.find().then((results) => {
         let data = { "book_results": results }
         res.send(data);
-
+        logger.info('GET /books', results)
     }).catch((err) => {
-        console.error(err);
+        logger.error(err);
     });
 });
 
@@ -63,33 +65,48 @@ app.get('/books/:id', (req, res) => {
     // access all instances of product in our collection, 
     Product.findById(req.params.id)
     // and send them back to the response as JSON
-    .then(product => res.json(product))
-    .catch(err => res.status(400).json("Error: " + err))
+    .then(product => {
+        res.json(product);
+        logger.info('GET /books/:id', req.params.id,product);
+    })
+    .catch(err => {
+        res.status(400).json("Error: " + err);
+        logger.error(`Error finding the Book with ID ${req.params.id}.`,err);
+})
 });
 
 // GET books with genre
 app.get('/books/genres/:genre', (req, res) => {
     const the_genre = req.params.genre;    
-    console.log(the_genre);
     Product.find( { genre: the_genre })
     .then(results => {
         let data = { "book_results": results };
         res.send(data);
-    }).catch(err => res.status(400).json("Error: " + err))
+        logger.info("GET /books/genres/:genre", results);
+    }).catch(err => {
+        res.status(400).json("Error: " + err);
+        logger.error(`Error finding the Books with genre ${the_genre}`,err)
+    })
 });
 
 //UPDATE the "available" of the products that are bought
 app.put('/books', (req, res) => {
     const products = req.body.sold;
-    products.forEach((product) => {
-    // product[0] = id , product[1] = sold quantity     
+    products.forEach((product) => {    
         Product.findById(product[0]).then((the_product)=>{
             const new_value = parseInt(the_product.available) - parseInt(product[1]);
             Product.findOneAndUpdate({_id : product[0]}, { available: new_value },{ returnOriginal: false}).then((update)=>{
                 if(products.indexOf(product) == products.length-1){
                       res.status(200).send("Update complete");
+                      logger.info("Products have been updated.", update);
                 }
-            }).catch(err => res.status(400).json("Error: " + err));
+            }).catch(err => {
+                res.status(400).json("Error: " + err);
+                logger.error("Error updating the products.", err);
+            });
+        }).catch(err=>{
+            res.status(400).json("Error: " + err);
+            logger.error("Error finding the products.", err);
         });
     });
 });
