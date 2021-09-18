@@ -1,3 +1,5 @@
+// requiring Mongoose package
+
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
@@ -10,7 +12,7 @@ const product_schema = new Schema({
         type: String,
         required: true
       },
-    // array in String
+    // more than one author, array in String
     author: {
         type: [String],
         required: true

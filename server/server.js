@@ -1,4 +1,4 @@
-// packages
+// requiring packages
 const express = require('express');
 const mongoose = require('mongoose');
 const Product = require('./models/product_model.js');
@@ -9,14 +9,16 @@ const logger = require('./logger');
 // creating express server
 const app = express();
 
-// connections
+// set port to listen for requests
 const port = process.env.PORT || 3000;
 const MongodbURI = "mongodb+srv://enki-admin-cart:enki1234@cluster0.5xz0p.mongodb.net/enki-products?retryWrites=true&w=majority"
 
+// creating express server
 app.use(express.json());
+
+// avoid CORS errors
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Credentials');
-    // Cookie -> res.header('Access-Control-Allow-Credentials', 'true');
     res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DEL, OPTION, HEAD');
     next();
 });
@@ -27,27 +29,22 @@ const corsWhitelist = [
     'https://enki-cart.herokuapp.com/'
 ];
 
+// setting cors options
 var corsOptions = {
     origin: ['https://enki-bookstore.herokuapp.com','https://enki-cart.herokuapp.com', 'https://enki-store.herokuapp.com'],
-    // origin: function (origin, callback) {
-    //     if (corsWhitelist.indexOf(origin) !== -1) {
-    //         callback(null, true)
-    //     } else {
-    //         callback(new Error('Not allowed by CORS'));
-    //     }
-    // },
-    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204,
+    optionsSuccessStatus: 200 
 }
 
 app.use(cors(corsOptions));
 
+// connection to database
 mongoose.connect(MongodbURI, { useNewUrlParser: true, useUnifiedTopology: true })
 // listen only after connected with db
     .then((result) => app.listen(port, () => 
     logger.info(`Listening on port ${port}...`)))
     .catch((err) => logger.error(err));
 
-//Product Service
+// GET Product Service
 app.get('/', (req, res) => {
         res.status(200).send("Enki Product Page");
     });
@@ -65,8 +62,8 @@ app.get('/books', (req, res) => {
 
 // GET a book with id
 app.get('/books/:id', (req, res) => {
-    Product.findById(req.params.id)
     // access all instances of product in our collection, 
+    Product.findById(req.params.id)
     // and send them back to the response as JSON
     .then(product => {
         res.json(product);
@@ -114,18 +111,3 @@ app.put('/books', (req, res) => {
     });
 });
 
-// Lesson 1: 
-// then Situation: 1/ res.status(200).send(); 2/ JSON
-// Lesson 2: 
-// one path, one GET -> CastError: Cast to ObjectId failed for value \"Cookbooks\" (type string) 
-
-//----------------------LOGS-------------------
-app.get('/logs', (req, res) => {
-    Log.find()
-    .then((result) => {
-        res.send(result);
-    }).catch(err => {
-        res.status(400).json("Error: " + err);
-        logger.error(err);
-    })
-})
